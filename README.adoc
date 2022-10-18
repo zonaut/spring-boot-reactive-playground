@@ -8,6 +8,11 @@ A playground project for Spring Boot reactive
 
 You can use https://sdkman.io/ to easily switch between versions on Linux
 
+After opening the project in Intellij it is possible that you need to set the Java SDK to 17
+
+* in project module settings
+* and gradle build tools also needs to the correct jvm
+
 == Build
 
     gradle clean build
