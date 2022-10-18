@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.16.xsd">
+
+    <property name="author" value="zonaut"/>
+
+    <include file="types/01-load-types.xml" relativeToChangelogFile="true"/>
+
+    <include file="release-v000-00-01/release-v000-00-01.xml" relativeToChangelogFile="true"/>
+
+    <include file="stubs/01-load-stubs.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

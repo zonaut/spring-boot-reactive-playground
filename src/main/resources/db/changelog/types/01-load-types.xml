@@ -1,0 +1,22 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.16.xsd">
+
+    <!--
+        https://www.postgresql.org/docs/current/datatype-enum.html
+        https://www.postgresql.org/docs/current/sql-altertype.html
+        
+        TODO Check if we can manage update of types here instead of creating new migration scripts each time.
+    -->
+    <changeSet id="loadTypes" author="${author}">
+        <sql>
+            DO $$ BEGIN
+            CREATE TYPE order_status AS ENUM( 'CREATED', 'PROCESSING', 'SHIPPED', 'DELIVERED');
+            EXCEPTION
+                WHEN duplicate_object THEN null;
+            END $$;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

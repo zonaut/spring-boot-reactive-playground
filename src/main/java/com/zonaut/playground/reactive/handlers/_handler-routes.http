@@ -1,0 +1,23 @@
+# Get all customers
+
+GET http://localhost:8080/api/handlers/customers
+
+###
+
+# Create a new customer
+
+POST http://localhost:8080/api/handlers/customers
+accept: */*
+Content-Type: application/json
+
+{
+  "username": "reactive911"
+}
+
+###
+
+# Get all products
+
+GET http://localhost:8080/api/handlers/products
+
+###

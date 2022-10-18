@@ -1,0 +1,44 @@
+= Spring Boot reactive playground
+
+A playground project for Spring Boot reactive
+
+== Requirements
+
+- Java 17
+
+You can use https://sdkman.io/ to easily switch between versions on Linux
+
+== Build
+
+    gradle clean build
+
+
+== Run
+
+    docker-compose up
+
+Run the application
+
+Swagger will be available on
+
+http://localhost:8080/api/webjars/swagger-ui/index.html
+
+== Reference Documentation and examples
+
+https://projectreactor.io/docs/core/release/reference/
+https://projectreactor.io/docs/core/release/reference/#intro-reactive
+
+https://docs.spring.io/spring-data/r2dbc/docs/current/reference/html/
+https://docs.spring.io/spring-data/r2dbc/docs/current/reference/html/#new-features
+
+https://github.com/spring-projects/spring-data-r2dbc/releases/
+https://github.com/spring-projects/spring-data-r2dbc/tree/main (checkout version branch)
+
+https://r2dbc.io/
+
+https://github.com/spring-projects/spring-data-examples/blob/main/r2dbc/pom.xml
+
+=== Other examples
+
+https://hantsy.github.io/spring-reactive-sample/
+https://github.com/hantsy/spring-reactive-sample

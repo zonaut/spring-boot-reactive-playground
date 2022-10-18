@@ -1,0 +1,47 @@
+#
+# https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/
+#
+server:
+  error:
+    whitelabel:
+      enabled: false
+  port: 8080
+
+spring:
+  # https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/web/reactive/WebFluxProperties.html
+  webflux:
+    base-path: /api
+  # https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/r2dbc/R2dbcProperties.html
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5434/postgres
+    username: postgres
+    password: password
+  # https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/autoconfigure/liquibase/LiquibaseProperties.html
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-main.xml
+    url: jdbc:postgresql://localhost:5434/postgres
+    user: postgres
+    password: password
+    # Load stub data into tables
+    # If you don't want this to happen you need to provide an arbitrary value here, do not leave it empty or disabled
+    # https://docs.liquibase.com/concepts/changelogs/attributes/contexts.html
+    contexts: stubs
+    # Drop all tables on startup first before migrating, this will not delete types you created like enums
+    drop-first: true
+
+logging:
+  level:
+    com:
+      zonaut:
+        playground:
+          reactive:
+            exceptions: TRACE
+    org:
+      springframework:
+        web:
+          reactive:
+            function:
+              client:
+                ExchangeFunctions: INFO
+        r2dbc: INFO

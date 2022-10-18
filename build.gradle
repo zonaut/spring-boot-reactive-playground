@@ -1,0 +1,221 @@
+import org.jooq.meta.jaxb.Logging
+
+buildscript {
+    ext {
+        springBootVersion = '2.7.4' // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot
+        springDependencyManagementVersion = '1.0.14.RELEASE'
+        // https://plugins.gradle.org/plugin/io.spring.dependency-management
+        springCloudVersion = '2021.0.4'
+        // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
+
+        testContainersVersion = '1.17.5' // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
+        openApiVersion = '1.6.11' // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-webflux-ui
+
+        gradleTestLoggerPluginVersion = '3.2.0'
+        // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
+    }
+
+    dependencies {
+        classpath "com.adarshr:gradle-test-logger-plugin:${gradleTestLoggerPluginVersion}"
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version "$springBootVersion"
+    id 'io.spring.dependency-management' version "$springDependencyManagementVersion"
+    id 'nu.studer.jooq' version '7.1.1'
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.adarshr.test-logger'
+
+group = 'com.zonaut'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+////////////////////////////////////////////////////////////////////////////////////
+// Liquibase: This version fixes problems with relative paths in older versions.
+// TODO Remove this when Spring Boot uses at least version 4.16.0 or newer
+//      - disable ext['liquibase.version'] and check the version with
+//          - gradle dI --dependency liquibase-core
+////////////////////////////////////////////////////////////////////////////////////
+ext['liquibase.version'] = '4.16.1' // https://mvnrepository.com/artifact/org.liquibase/liquibase-core
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+// TestContainers is planning to replace junit4 in their 2.x versions releases
+// If we really want to exclude junit 4 there are some hacky solutions in the following issue
+// https://github.com/testcontainers/testcontainers-java/issues/970
+configurations {
+    all {
+//        exclude group: 'junit', module: 'junit'
+//        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+dependencies {
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    // https://github.com/etiennestuder/gradle-jooq-plugin
+    jooqGenerator 'org.postgresql:postgresql:42.3.7'
+    jooqGenerator "jakarta.xml.bind:jakarta.xml.bind-api:3.0.1"
+
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation('org.springframework.cloud:spring-cloud-starter-sleuth')
+
+    implementation 'jakarta.json:jakarta.json-api:1.1.6'
+
+    implementation "org.springdoc:springdoc-openapi-webflux-ui:${openApiVersion}"
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+    implementation 'org.postgresql:r2dbc-postgresql'
+    implementation 'org.liquibase:liquibase-core'
+    // Liquibase doesn't run with reactive drivers so we need to include spring-jdbc and the blocking postgresql driver
+    implementation 'org.springframework:spring-jdbc'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    testCompileOnly "org.projectlombok:lombok"
+    testAnnotationProcessor "org.projectlombok:lombok"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-validation'
+    testImplementation 'io.projectreactor:reactor-test'
+
+    testImplementation "org.testcontainers:testcontainers:${testContainersVersion}"
+    testImplementation "org.testcontainers:junit-jupiter:${testContainersVersion}"
+    testImplementation "org.testcontainers:r2dbc:${testContainersVersion}"
+    testImplementation "org.testcontainers:postgresql:${testContainersVersion}"
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+// Setup default, integration and acceptance tests
+////////////////////////////////////////////////////////////////////////////////////
+
+// https://github.com/radarsh/gradle-test-logger-plugin
+testlogger {
+    // Options: plain, standard, mocha, plain-parallel, standard-parallel and mocha-parallel
+    theme 'standard' // Use plain or plain-parallel to avoid Unicode color symbols in the console
+    showExceptions false
+    showStackTraces false
+    showFullStackTraces false
+    slowThreshold 100
+    showFailedStandardStreams false
+}
+
+test {
+    useJUnitPlatform()
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output
+            compileClasspath += main.compileClasspath
+            compileClasspath += test.output
+            compileClasspath += test.compileClasspath
+            runtimeClasspath += test.runtimeClasspath
+        }
+    }
+    acceptanceTest {
+        java {
+            compileClasspath += main.output
+            compileClasspath += main.compileClasspath
+            compileClasspath += test.output
+            compileClasspath += test.compileClasspath
+            runtimeClasspath += test.runtimeClasspath
+        }
+    }
+}
+
+task integrationTest(type: Test) {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    useJUnitPlatform()
+    shouldRunAfter 'test'
+}
+
+task acceptanceTest(type: Test) {
+    testClassesDirs = sourceSets.acceptanceTest.output.classesDirs
+    classpath = sourceSets.acceptanceTest.runtimeClasspath
+    useJUnitPlatform()
+    shouldRunAfter 'test', 'integrationTest'
+}
+
+idea {
+    module {
+        testSourceDirs += file('src/integrationTest/java')
+        testSourceDirs += file('src/acceptanceTest/java')
+    }
+}
+
+check.dependsOn integrationTest
+check.dependsOn acceptanceTest
+
+////////////////////////////////////////////////////////////////////////////////////
+// Extend the default cleaning task and add extra check to defaults
+////////////////////////////////////////////////////////////////////////////////////
+
+clean {
+    delete "logs", "work"
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// JOOQ - https://github.com/etiennestuder/gradle-jooq-plugin
+// Start the application against docker-compose and run 'gradle generateJooq'
+// The code will be generated under the target folder
+////////////////////////////////////////////////////////////////////////////////////
+
+jooq {
+    configurations {
+        main {
+            generateSchemaSourceOnCompilation = false
+            generationTool {
+                logging = Logging.WARN
+                jdbc {
+                    driver = 'org.postgresql.Driver'
+                    url = 'jdbc:postgresql://localhost:5434/postgres'
+                    user = 'postgres'
+                    password = 'password'
+                }
+                generator {
+                    name = 'org.jooq.codegen.DefaultGenerator'
+                    database {
+                        name = 'org.jooq.meta.postgres.PostgresDatabase'
+                        inputSchema = 'public'
+                    }
+                    generate {
+                        deprecated = false
+                        records = true
+                        immutablePojos = true
+                        fluentSetters = true
+                    }
+                    target {
+                        packageName = 'com.zonaut.playground.reactive'
+                        directory = "build/generated/sources/jooq/main"
+                    }
+                }
+            }
+        }
+    }
+}
