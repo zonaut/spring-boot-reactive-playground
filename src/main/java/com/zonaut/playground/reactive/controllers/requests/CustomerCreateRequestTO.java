@@ -1,10 +1,9 @@
 package com.zonaut.playground.reactive.controllers.requests;
 
 import com.zonaut.playground.reactive.domain.RequestTransferObject;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.NotBlank;
 
 @Getter
 @Builder

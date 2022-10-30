@@ -2,20 +2,18 @@ import org.jooq.meta.jaxb.Logging
 
 buildscript {
     ext {
-        springBootVersion = '2.7.4' // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot
-        springDependencyManagementVersion = '1.0.14.RELEASE'
-        // https://plugins.gradle.org/plugin/io.spring.dependency-management
-        springCloudVersion = '2021.0.4'
-        // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
+        springBootVersion = '3.0.0-RC1' // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot
+        springDependencyManagementVersion = '1.1.0' // https://plugins.gradle.org/plugin/io.spring.dependency-management
+        springCloudVersion = '2021.0.4' // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
 
         testContainersVersion = '1.17.5' // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
-        openApiVersion = '1.6.11' // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-webflux-ui
+        openApiVersion = '1.6.12' // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-webflux-ui
 
-        gradleTestLoggerPluginVersion = '3.2.0'
-        // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
+        gradleTestLoggerPluginVersion = '3.2.0' // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
     }
 
     dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "com.adarshr:gradle-test-logger-plugin:${gradleTestLoggerPluginVersion}"
     }
 }
@@ -36,12 +34,11 @@ group = 'com.zonaut'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
-////////////////////////////////////////////////////////////////////////////////////
-// Liquibase: This version fixes problems with relative paths in older versions.
-// TODO Remove this when Spring Boot uses at least version 4.16.0 or newer
-//      - disable ext['liquibase.version'] and check the version with
-//          - gradle dI --dependency liquibase-core
-////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+// Liquibase: This version fixes problems with relative paths in older versions and newer versions?
+// Temporarily use 4.16.1 until they fix it once and for all now
+// TODO Look at https://github.com/liquibase/liquibase/issues/3393 for a future solution
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 ext['liquibase.version'] = '4.16.1' // https://mvnrepository.com/artifact/org.liquibase/liquibase-core
 
 dependencyManagement {
@@ -52,6 +49,9 @@ dependencyManagement {
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/libs-milestone' }
+    maven { url 'https://repo.spring.io/libs-snapshot' }
 }
 
 // TestContainers is planning to replace junit4 in their 2.x versions releases
@@ -65,10 +65,10 @@ configurations {
 }
 
 dependencies {
+    compileOnly("org.springframework.boot:spring-boot-devtools")
+
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"
-
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // https://github.com/etiennestuder/gradle-jooq-plugin
     jooqGenerator 'org.postgresql:postgresql:42.3.7'

@@ -5,13 +5,12 @@ import com.zonaut.playground.reactive.controllers.responses.CustomerResponseTO;
 import com.zonaut.playground.reactive.entities.CustomerEntity;
 import com.zonaut.playground.reactive.mappers.CustomerObjectMapper;
 import com.zonaut.playground.reactive.repositories.CustomerRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import javax.validation.Valid;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.*;

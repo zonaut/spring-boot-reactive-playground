@@ -7,13 +7,13 @@ import com.zonaut.playground.reactive.domain.types.OrderStatus;
 import com.zonaut.playground.reactive.entities.OrderEntity;
 import com.zonaut.playground.reactive.repositories.OrderLineRepository;
 import com.zonaut.playground.reactive.repositories.OrderRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.CREATED;

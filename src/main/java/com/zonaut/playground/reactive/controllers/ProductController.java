@@ -9,6 +9,7 @@ import com.zonaut.playground.reactive.entities.ProductEntityFeaturesJson;
 import com.zonaut.playground.reactive.mappers.ProductObjectMapper;
 import com.zonaut.playground.reactive.repositories.ProductRepository;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
